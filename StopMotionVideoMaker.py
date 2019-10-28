@@ -10,6 +10,12 @@ import vlc
 
 conf = json.load(open("StopmotionSettings.json"))
 
+def LoadConfigFile():
+    global conf
+    conf = json.load(open("Stopmotion.json"))
+    print ("Config File Reloaded")
+    return conf
+
 def Playsound():
     if conf["PlaySound"] == True:
         p = vlc.MediaPlayer("C:\Git\openCV\Sounds\CameraClick.mp3")
@@ -93,6 +99,8 @@ def CameraCalibration(camera):
                 #cv2.imwrite('static\images\Calibration.jpg', LiveFeed)
                 CloseCamera(camera)                                                                                     # call the camera close function
                 break
+            elif cv2.waitKey(1) & 0xFF == ord("f"):
+                LoadConfigFile()
         else:
             CloseCamera(camera)                                                                                         # call the camera close function
             print ("camera not active")
@@ -171,6 +179,8 @@ def StopMotionPictureDetection(camera):
                 print("exit")
                 CloseCamera(camera)  # call the camera close function
                 break
+            elif cv2.waitKey(1) & 0xFF == ord("f"):
+                LoadConfigFile()
         else:
             CloseCamera(camera)  # call the camera close function
             print("camera not active")
@@ -183,6 +193,7 @@ print ("R - Record Video")
 print ("O - Offline Video Analysis")
 print ("L - Live Traffic Detection")
 print ("M - Make Video")
+print ("F - Reload Config File")
 print ("Q - Quit")
 
 camera = ""
@@ -202,7 +213,10 @@ while True:                                                                     
     if Selection.lower() == "l":
         camera = OnlineVideo()
         StopMotionPictureDetection(camera)
+    if Selection.lower() == "f":
+        LoadConfigFile()
     if Selection.lower() == "q" or Selection == chr(27):
         if camera != "": CloseCamera(camera)
         print ("quit program")
         break
+
