@@ -8,7 +8,7 @@ import argparse
 import json
 import vlc
 
-conf = json.load(open("StopmotionSettings.json"))
+conf = json.load(open("Stopmotion.json"))
 
 def LoadConfigFile():
     global conf
