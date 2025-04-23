@@ -17,7 +17,41 @@ sounds_dir = os.path.join(root_dir, "Sounds")
 
 # Load config
 conf = json.load(open(config_path))
+def ComposeVideo():
+    image_files = [f for f in os.listdir(screenshots_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
+    if not image_files:
+        print("No images found in the Screenshots folder.")
+        return
+    # User interaction to identify the framerate
+    while True:
+        try:
+            framerate = int(input("Enter the desired framerate (frames per second): "))
+            if framerate > 0:
+                break
+            else:
+                print("Framerate must be a positive integer.")
+        except ValueError:
+            print("Please enter a valid integer.")
 
+   
+    image_files.sort()  # Ensure images are in order
+    first_image_path = os.path.join(screenshots_dir, image_files[0])
+    first_image = cv2.imread(first_image_path)
+    height, width, layers = first_image.shape
+
+    video_name = input("Enter the name for the composed video (without extension): ")
+    video_path = os.path.join(videos_dir, f"{video_name}.avi")
+    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    video = cv2.VideoWriter(video_path, fourcc, framerate, (width, height))
+
+    for image_file in image_files:
+        image_path = os.path.join(screenshots_dir, image_file)
+        img = cv2.imread(image_path)
+        video.write(img)
+        print(f"Adding {image_file} to video at {framerate} fps.")
+
+    video.release()
+    print(f"Video composed successfully: {video_path}")
 def LoadConfigFile():
     global conf
     conf = json.load(open(config_path))
@@ -194,6 +228,7 @@ print("O - Offline Video Analysis")
 print("L - Live Traffic Detection")
 print("M - Make Video")
 print("F - Reload Config File")
+print("V - Compose Video")
 print("Q - Quit")
 
 camera = ""
@@ -215,6 +250,8 @@ while True:
         StopMotionPictureDetection(camera)
     elif Selection.lower() == "f":
         LoadConfigFile()
+    elif Selection.lower() == "v":
+        ComposeVideo()
     elif Selection.lower() == "q" or Selection == chr(27):
         if camera:
             CloseCamera(camera)
