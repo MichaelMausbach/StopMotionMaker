@@ -32,7 +32,16 @@ def ComposeVideo():
                 print("Framerate must be a positive integer.")
         except ValueError:
             print("Please enter a valid integer.")
-
+    # User interaction to identify the screenshots to be taken into account
+    while True:
+        try:
+            timesince = int(input("Enter the number of minutes to be taken into account (10 means it will only take the screnshots taken in the last 10 minutes: "))
+            if timesince > 0:
+                break
+            else:
+                print("time must be a positive integer.")
+        except ValueError:
+            print("Please enter a valid integer.")
    
     image_files.sort()  # Ensure images are in order
     first_image_path = os.path.join(screenshots_dir, image_files[0])
@@ -44,11 +53,17 @@ def ComposeVideo():
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     video = cv2.VideoWriter(video_path, fourcc, framerate, (width, height))
 
+    cutoff_time = datetime.datetime.now() - datetime.timedelta(minutes=timesince)
+
     for image_file in image_files:
         image_path = os.path.join(screenshots_dir, image_file)
-        img = cv2.imread(image_path)
-        video.write(img)
-        print(f"Adding {image_file} to video at {framerate} fps.")
+        image_creation_time = datetime.datetime.fromtimestamp(os.path.getmtime(image_path))
+        if image_creation_time >= cutoff_time:
+            img = cv2.imread(image_path)
+            video.write(img)
+            print(f"Adding {image_file} to video at {framerate} fps.")
+        else:
+            print(f"Skipping {image_file} as it was created before the cutoff time.")
 
     video.release()
     print(f"Video composed successfully: {video_path}")
